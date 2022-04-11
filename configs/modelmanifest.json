@@ -1,7 +1,7 @@
 {
 	"model_configuration": {
 		"model_name": "hsm",
-		"model_configuration_path": "/hsm.json"
+		"model_configuration_path": "/workspaces/hydrographscaler/configs/hsm.json"
 	},
 	"inputs": [],
 	"outputs": [{

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/henrygeorgist/hydrographscalar/model"
 	"github.com/usace/wat-api/wat"
 )
 
@@ -15,7 +16,7 @@ func LoadModelPayload(watPayload string) (wat.ModelPayload, error) {
 	var ts wat.ModelPayload
 	jsonFile, err := os.Open(watPayload)
 	if err != nil {
-		return ts, nil
+		return ts, err
 	}
 
 	defer jsonFile.Close()
@@ -25,28 +26,14 @@ func LoadModelPayload(watPayload string) (wat.ModelPayload, error) {
 		return ts, err
 	}
 
-	json.Unmarshal(jsonData, &ts)
+	errjson := json.Unmarshal(jsonData, &ts)
+	if errjson != nil {
+		return ts, errjson
+	}
 	return ts, nil
 
 }
-func LoadModel(modelresourcepath string) (HydrographScalerModel, error) {
-	var ts HydrographScalerModel
-	jsonFile, err := os.Open(modelresourcepath)
-	if err != nil {
-		return ts, nil
-	}
 
-	defer jsonFile.Close()
-
-	jsonData, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return ts, err
-	}
-
-	json.Unmarshal(jsonData, &ts)
-	return ts, nil
-
-}
 func main() {
 	fmt.Println("running hydrographscaler")
 
@@ -69,6 +56,7 @@ func main() {
 	modelpayload, err := LoadModelPayload(configPath)
 	if err != nil {
 		fmt.Println("error:", err)
+		return
 	} else {
 		fmt.Println("recieved payload:", modelpayload)
 	}
@@ -78,13 +66,15 @@ func main() {
 		fmt.Println("error", "expecting", "hydrographscaler", "got", modelpayload.TargetPlugin)
 		return
 	}
-	hsm, err := LoadModel(modelpayload.ModelConfigurationPath)
+	//load model from file
+	hsm, err := model.NewHydrographScalerModelFromFile(modelpayload.ModelConfigurationPath)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
+	} else {
+		fmt.Println(hsm)
 	}
-	//load it from file.
-	event := HydrographScalerEvent{
+	event := model.HydrographScalerEvent{
 		RealizationSeed:   modelpayload.RealizationSeed,
 		EventSeed:         modelpayload.EventSeed,
 		OutputDestination: modelpayload.OutputDestination,
