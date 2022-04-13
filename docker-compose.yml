@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  hydro-scalar:
+    build: .
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/workspaces

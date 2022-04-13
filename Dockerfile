@@ -13,4 +13,16 @@ ENV GOPATH=/go
 ENV GO111MODULE="on"
 ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
+# Hot-Reloader
+RUN go install github.com/githubnemo/CompileDaemon@v1.4.0
+
 WORKDIR /workspaces
+COPY . /workspaces/
+
+RUN go mod download
+
+RUN go build main.go
+ENTRYPOINT /go/bin/CompileDaemon --build="go build main.go" --command="./main -config=myconfig.json"
+
+# TODO: add prod build
+# FROM osgeo/gdal:alpine-normal-3.2.1 as prod

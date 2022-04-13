@@ -1,0 +1,31 @@
+plugin: hydrograph_scaler
+
+event_config:
+  realization:
+    id: 1
+    seed: 1234
+  event:
+    id: 1
+    seed: 5678
+  time_window:
+    start_time: 2018-01-01T01:01:01.000000001-05:00
+    end_time: 2019-01-01T01:01:01.000000001-05:00
+
+models:
+  - model:
+      name: gage_010220202
+      parameter: flow
+      input: /data/test-sim/inputs/gage_010220202.json
+      output: /data/test-sim/outputs/gage_010220202.csv
+
+  - model:
+      name: hms_basin_A1
+      parameter: flow
+      input: /data/test-sim/inputs/hms_basin_A1.json
+      output: /data/test-sim/outputs/hms_basin_A1.csv
+
+  - model:
+      name: hms_basin_A2
+      parameter: flow
+      input: /data/test-sim/inputs/hms_basin_A2.json
+      output: /data/test-sim/outputs/hms_basin_A2.csv

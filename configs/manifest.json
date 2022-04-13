@@ -1,0 +1,14 @@
+{
+  "model_configuration": {
+    "model_name": "hsm",
+    "model_configuration_path": "/home/slawler/workbench/repos/HydrographScaler/configs/hsm.json"
+  },
+  "inputs": [],
+  "outputs": [
+    {
+      "name": "hydrograph1",
+      "parameter": "flow",
+      "format": ".csv"
+    }
+  ]
+}
