@@ -4,102 +4,82 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/HydrologicEngineeringCenter/go-statistics/statistics"
+	"github.com/USACE/filestore"
 )
 
 type HydrographScalerModel struct {
-	Name          string                                `json:"name"`
-	Flows         []float64                             `json:"flows"`
-	TimeStep      time.Duration                         `json:"timestep"`
-	FlowFrequency statistics.BootstrappableDistribution `json:"flow_frequency"`
+	Locations []HydrographScalerLocation `json:"locations"`
 }
-type HydrographScalerStruct struct {
-	Name                          string        `json:"name"`
-	Flows                         []float64     `json:"flows"`
-	TimeStep                      time.Duration `json:"timestep"`
-	HydrographFlowFrequencyStruct `json:"flow_frequency"`
+
+type HydrographScalerLocation struct {
+	Name     string        `json:"name"`
+	Flows    []float64     `json:"flows"`
+	TimeStep time.Duration `json:"timestep"`
+	LP3      LP3Moments    `json:"lp3_moments"`
 }
-type HydrographFlowFrequencyStruct struct {
+
+type LP3Moments struct {
 	Mean              float64 `json:"mean"`
-	StandardDeviation float64 `json:"standarddeviation"`
+	StandardDeviation float64 `json:"standard_deviation"`
 	Skew              float64 `json:"skew"`
 	EYOR              int     `json:"equivalent_years_of_record"`
 }
-type HydrographScalerEvent struct {
-	RealizationSeed   int64
-	EventSeed         int64
-	OutputDestination string
-	StartTime         time.Time
-	EndTime           time.Time
-}
 
-func NewHydrographScalerModelFromFile(filepath string) (HydrographScalerModel, error) {
-	var hss HydrographScalerStruct
-	hsm := HydrographScalerModel{}
-	jsonFile, err := os.Open(filepath)
+func NewHydrographScalerLocationFromS3(filepath string, fs filestore.FileStore) (HydrographScalerLocation, error) {
+	// var hss HydrographScalerStruct
+	hsm := HydrographScalerLocation{}
+
+	data, err := fs.GetObject(filepath)
 	if err != nil {
 		return hsm, err
 	}
 
-	defer jsonFile.Close()
-
-	jsonData, err := ioutil.ReadAll(jsonFile)
+	body, err := ioutil.ReadAll(data)
 	if err != nil {
-		return hsm, err
+		log.Fatal(err)
 	}
-	fmt.Println("read:", string(jsonData))
-	errjson := json.Unmarshal(jsonData, &hss)
+
+	// fmt.Println("read:", string(body))
+	errjson := json.Unmarshal(body, &hsm)
 	if errjson != nil {
+		fmt.Println("Yep!")
 		return hsm, errjson
 	}
-	fmt.Println("read:", string(jsonData))
-	fmt.Println("produced:", hss)
-	hsm.Name = hss.Name
-	hsm.Flows = hss.Flows
-	hsm.TimeStep = hss.TimeStep
-	lp3 := statistics.LogPearsonIIIDistribution{
-		Mean:                    hss.Mean,
-		StandardDeviation:       hss.StandardDeviation,
-		Skew:                    hss.Skew,
-		EquivalentYearsOfRecord: hss.EYOR,
-	}
-	hsm.FlowFrequency = lp3
-	fmt.Println("converted to:", hsm)
+
 	return hsm, nil
 
 }
 
 //model implementation
-func (hsm HydrographScalerModel) ModelName() string {
+func (hsm HydrographScalerLocation) ModelName() string {
 	return hsm.Name
 }
 
-func (hsm HydrographScalerModel) Compute(event HydrographScalerEvent) error {
-	//bootstrap first (this is inefficient because it should only happen once per realization)
-	b := hsm.FlowFrequency.Bootstrap(event.RealizationSeed)
-	//then sample event level peak value
-	r := rand.New(rand.NewSource(event.EventSeed))
-	value := b.InvCDF(r.Float64())
-	outputdest := event.OutputDestination + hsm.ModelName() + ".csv"
-
-	w, err := os.OpenFile(outputdest, os.O_WRONLY|os.O_CREATE, 0600)
-
-	if err != nil {
-		fmt.Println(err)
+func (hsm HydrographScalerLocation) Compute(event *Payload) error {
+	// bootstrap first (this is inefficient because it should only happen once per realization)
+	lp3 := statistics.LogPearsonIIIDistribution{
+		Mean:                    hsm.LP3.Mean,
+		StandardDeviation:       hsm.LP3.StandardDeviation,
+		Skew:                    hsm.LP3.Skew,
+		EquivalentYearsOfRecord: hsm.LP3.EYOR,
 	}
 
-	defer w.Close()
+	bootStrap := lp3.Bootstrap(event.Config.Realization.Seed)
+	randomPeakValue := rand.New(rand.NewSource(event.Config.Event.Seed))
+	value := bootStrap.InvCDF(randomPeakValue.Float64())
 
-	currentTime := event.StartTime
-	fmt.Fprintln(w, "Time,Flow")
+	currentTime := event.Config.TimeWindow.StartTime
 
 	for _, flow := range hsm.Flows {
-		if event.EndTime.After(currentTime) {
-			fmt.Fprintln(w, fmt.Sprintf("%v,%v", currentTime, flow*value))
+		if event.Config.TimeWindow.EndTime.After(currentTime) {
+
+			_ = fmt.Sprintf("%v,%v", currentTime, flow*value)
+			// fmt.Println(msg)
 
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {
