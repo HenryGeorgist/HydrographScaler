@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
@@ -11,17 +10,17 @@ func main() {
 
 	fs, err := model.Init()
 
-	var configPath string
-	flag.StringVar(&configPath, "config", "", "please specify an input file using `-config=myconfig.json`")
-	flag.Parse()
+	// var configPath string
+	// flag.StringVar(&configPath, "config", "", "please specify an input file using `-config=myconfig.json`")
+	// flag.Parse()
 
-	if configPath == "" {
-		fmt.Println("given a blank path...")
-		fmt.Println("please specify an input file using `-config=myconfig.json`")
-		return
-	}
+	// if configPath == "" {
+	// 	fmt.Println("given a blank path...")
+	// 	fmt.Println("please specify an input file using `-config=myconfig.json`")
+	// 	return
+	// }
 
-	payload := "/workspaces/hydrographscaler/manifest/payload.yaml"
+	payload := "/data/test-sim/inputs/payload.yaml"
 
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
@@ -49,4 +48,5 @@ func main() {
 		}
 	}
 
+	fmt.Println("Made it to the end.....")
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"time"
 
@@ -35,7 +34,7 @@ func NewHydrographScalerModelFromS3(filepath string, fs filestore.FileStore) (Hy
 
 	body, err := ioutil.ReadAll(data)
 	if err != nil {
-		log.Fatal(err)
+		return hsm, err
 	}
 
 	// fmt.Println("read:", string(body))
@@ -59,14 +58,15 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	bootStrap := hsm.Distribution.Bootstrap(realizationSeed)
 	randomPeakValue := rand.New(rand.NewSource(eventSeed))
 	value := bootStrap.InvCDF(randomPeakValue.Float64())
-
+	fmt.Println("value", value)
+	fmt.Println("bootStrap", bootStrap)
 	currentTime := event.Config.TimeWindow.StartTime
 
 	for _, flow := range hsm.Flows {
 		if event.Config.TimeWindow.EndTime.After(currentTime) {
 
-			msg := fmt.Sprintf("%v,%v", currentTime, flow*value)
-			fmt.Println(msg)
+			_ = fmt.Sprintf("%v,%v", currentTime, flow*value)
+			// fmt.Println(msg)
 
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {

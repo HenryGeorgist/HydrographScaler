@@ -5,7 +5,7 @@ import "time"
 type Payload struct {
 	Plugin          string      `yaml:"plugin"`
 	Config          EventConfig `yaml:"event_config"`
-	DischargeModels []Models    `yaml:"discharge_models"`
+	DischargeModels []Models    `yaml:"models"`
 }
 
 type Realization struct {
