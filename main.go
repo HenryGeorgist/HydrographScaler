@@ -35,8 +35,8 @@ func main() {
 	}
 
 	for _, m := range payloadInstructions.DischargeModels {
-		hsm, err := model.NewHydrographScalerModelFromS3(m.Model.Input, fs)
-		fmt.Println(m.Model.Input)
+		hsm, err := model.NewHydrographScalerModelFromS3(m.Model.ModelFiles[0], fs)
+		fmt.Println(m.Model.ModelFiles[0])
 		if err != nil {
 			fmt.Println("error:", err)
 			return

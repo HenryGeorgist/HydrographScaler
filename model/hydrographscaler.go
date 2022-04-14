@@ -53,20 +53,22 @@ func (hsm HydrographScalerLocation) ModelName() string {
 	return hsm.Name
 }
 
-func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, event *Payload) error {
+func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, timewindow TimeWindow, outputdestination string) error {
 	// bootstrap first (this is inefficient because it should only happen once per realization)
 	bootStrap := hsm.Distribution.Bootstrap(realizationSeed)
 	randomPeakValue := rand.New(rand.NewSource(eventSeed))
 	value := bootStrap.InvCDF(randomPeakValue.Float64())
-	fmt.Println("value", value)
-	fmt.Println("bootStrap", bootStrap)
-	currentTime := event.Config.TimeWindow.StartTime
-
+	//fmt.Println("value", value)
+	//fmt.Println("bootStrap", bootStrap)
+	currentTime := timewindow.StartTime
+	//create a writer
+	fmt.Println(outputdestination)
+	fmt.Println("Time,Flow")
 	for _, flow := range hsm.Flows {
-		if event.Config.TimeWindow.EndTime.After(currentTime) {
+		if timewindow.EndTime.After(currentTime) {
 
-			_ = fmt.Sprintf("%v,%v", currentTime, flow*value)
-			// fmt.Println(msg)
+			msg := fmt.Sprintf("%v,%v", currentTime, flow*value)
+			fmt.Println(msg)
 
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {
@@ -79,8 +81,8 @@ func (hsm HydrographScalerModel) Compute(event *Payload) {
 	//create random generator for realization and event
 	erng := rand.NewSource(event.Config.Event.Seed)
 	rrng := rand.NewSource(event.Config.Realization.Seed)
-	for _, location := range hsm.Locations {
-		err := location.Compute(erng.Int63(), rrng.Int63(), event)
+	for idx, location := range hsm.Locations {
+		err := location.Compute(erng.Int63(), rrng.Int63(), event.Config.TimeWindow, event.DischargeModels[0].Model.Outputs[idx]) //this is alittle goofy
 		if err != nil {
 			fmt.Println("error:", err)
 			return

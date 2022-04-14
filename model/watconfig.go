@@ -32,8 +32,9 @@ type EventConfig struct {
 type Model struct {
 	Name string `yaml:"name"`
 	// Parameter string `yaml:"parameter"`
-	Input  string `yaml:"input"` // rename to model file?
-	Output string `yaml:"output"`
+	ModelFiles []string `yaml:"modelfiles"`
+	Inputs     []string `yaml:"inputs"` // rename to model file?
+	Outputs    []string `yaml:"outputs"`
 }
 
 type Models struct {
