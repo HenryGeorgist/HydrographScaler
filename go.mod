@@ -1,4 +1,4 @@
-module model
+module github.com/henrygeorgist/hydrographscalar
 
 go 1.18
 

@@ -13,19 +13,7 @@ event_config:
 
 models:
   - model:
-      name: gage_010220202
+      name: hsm
       parameter: flow
-      input: /data/test-sim/inputs/gage_010220202.json
-      output: /data/test-sim/outputs/gage_010220202.csv
-
-  - model:
-      name: hms_basin_A1
-      parameter: flow
-      input: /data/test-sim/inputs/hms_basin_A1.json
-      output: /data/test-sim/outputs/hms_basin_A1.csv
-
-  - model:
-      name: hms_basin_A2
-      parameter: flow
-      input: /data/test-sim/inputs/hms_basin_A2.json
-      output: /data/test-sim/outputs/hms_basin_A2.csv
+      input: /data/test-sim/inputs/hsm.json
+      output: /data/test-sim/outputs/hsm123.csv

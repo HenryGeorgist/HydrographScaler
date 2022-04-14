@@ -17,22 +17,16 @@ type HydrographScalerModel struct {
 }
 
 type HydrographScalerLocation struct {
-	Name     string        `json:"name"`
-	Flows    []float64     `json:"flows"`
-	TimeStep time.Duration `json:"timestep"`
-	LP3      LP3Moments    `json:"lp3_moments"`
+	Name         string                               `json:"name"`
+	Flows        []float64                            `json:"flows"`
+	TimeStep     time.Duration                        `json:"timestep"`
+	Distribution statistics.LogPearsonIIIDistribution `json:"distribution"`
+	//EquivalentYearsOfRecord int                                  `json:"equivalent_years_of_record"`
 }
 
-type LP3Moments struct {
-	Mean              float64 `json:"mean"`
-	StandardDeviation float64 `json:"standard_deviation"`
-	Skew              float64 `json:"skew"`
-	EYOR              int     `json:"equivalent_years_of_record"`
-}
-
-func NewHydrographScalerLocationFromS3(filepath string, fs filestore.FileStore) (HydrographScalerLocation, error) {
+func NewHydrographScalerModelFromS3(filepath string, fs filestore.FileStore) (HydrographScalerModel, error) {
 	// var hss HydrographScalerStruct
-	hsm := HydrographScalerLocation{}
+	hsm := HydrographScalerModel{}
 
 	data, err := fs.GetObject(filepath)
 	if err != nil {
@@ -60,17 +54,10 @@ func (hsm HydrographScalerLocation) ModelName() string {
 	return hsm.Name
 }
 
-func (hsm HydrographScalerLocation) Compute(event *Payload) error {
+func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, event *Payload) error {
 	// bootstrap first (this is inefficient because it should only happen once per realization)
-	lp3 := statistics.LogPearsonIIIDistribution{
-		Mean:                    hsm.LP3.Mean,
-		StandardDeviation:       hsm.LP3.StandardDeviation,
-		Skew:                    hsm.LP3.Skew,
-		EquivalentYearsOfRecord: hsm.LP3.EYOR,
-	}
-
-	bootStrap := lp3.Bootstrap(event.Config.Realization.Seed)
-	randomPeakValue := rand.New(rand.NewSource(event.Config.Event.Seed))
+	bootStrap := hsm.Distribution.Bootstrap(realizationSeed)
+	randomPeakValue := rand.New(rand.NewSource(eventSeed))
 	value := bootStrap.InvCDF(randomPeakValue.Float64())
 
 	currentTime := event.Config.TimeWindow.StartTime
@@ -78,8 +65,8 @@ func (hsm HydrographScalerLocation) Compute(event *Payload) error {
 	for _, flow := range hsm.Flows {
 		if event.Config.TimeWindow.EndTime.After(currentTime) {
 
-			_ = fmt.Sprintf("%v,%v", currentTime, flow*value)
-			// fmt.Println(msg)
+			msg := fmt.Sprintf("%v,%v", currentTime, flow*value)
+			fmt.Println(msg)
 
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {
@@ -87,4 +74,16 @@ func (hsm HydrographScalerLocation) Compute(event *Payload) error {
 		}
 	}
 	return nil
+}
+func (hsm HydrographScalerModel) Compute(event *Payload) {
+	//create random generator for realization and event
+	erng := rand.NewSource(event.Config.Event.Seed)
+	rrng := rand.NewSource(event.Config.Realization.Seed)
+	for _, location := range hsm.Locations {
+		err := location.Compute(erng.Int63(), rrng.Int63(), event)
+		if err != nil {
+			fmt.Println("error:", err)
+			return
+		}
+	}
 }

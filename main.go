@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"model/model"
+
+	"github.com/henrygeorgist/hydrographscalar/model"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 		return
 	}
 
-	payload := "/data/payload.yaml"
+	payload := "/workspaces/hydrographscaler/manifest/payload.yaml"
 
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
@@ -34,14 +35,16 @@ func main() {
 		return
 	}
 
-	for _, location := range payloadInstructions.DischargeModels {
-		hsml, err := model.NewHydrographScalerLocationFromS3(location.Model.Input, fs)
+	for _, m := range payloadInstructions.DischargeModels {
+		hsm, err := model.NewHydrographScalerModelFromS3(m.Model.Input, fs)
+		fmt.Println(m.Model.Input)
 		if err != nil {
 			fmt.Println("error:", err)
 			return
 		} else {
-			fmt.Println(hsml)
-			hsml.Compute(&payloadInstructions)
+			fmt.Println("computing model")
+			fmt.Println(hsm)
+			hsm.Compute(&payloadInstructions)
 
 		}
 	}
