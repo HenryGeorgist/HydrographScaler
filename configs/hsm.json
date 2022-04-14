@@ -10,15 +10,12 @@
     0.286, 0.28, 0.274, 0.268, 0.262, 0.256, 0.25, 0.244, 0.238
   ],
   "timestep": 3600000000000,
-  "distribution": {
-    "type":"LogPearsonIIIDistribution",
-    "parameters":{
+  "distribution":{
           "mean": 1.0,
           "standarddeviation": 0.1,
           "skew": 0.2,
           "equivalent_years_of_record": 100
       }
-    }
 },{
   "name": "hsm2",
   "flows": [
@@ -30,15 +27,12 @@
     0.286, 0.28, 0.274, 0.268, 0.262, 0.256, 0.25, 0.244, 0.238
   ],
   "timestep": 3600000000000,
-  "distribution": {
-    "type":"LogPearsonIIIDistribution",
-    "parameters":{
+  "distribution":{
           "mean": 2.0,
           "standarddeviation": 0.1,
           "skew": 0.2,
           "equivalent_years_of_record": 100
       }
-    }
 },{
   "name": "hsm3",
   "flows": [
@@ -50,14 +44,11 @@
     0.286, 0.28, 0.274, 0.268, 0.262, 0.256, 0.25, 0.244, 0.238
   ],
   "timestep": 3600000000000,
-  "distribution": {
-    "type":"LogPearsonIIIDistribution",
-    "parameters":{
+  "distribution":{
           "mean": 3.0,
           "standarddeviation": 0.1,
           "skew": 0.2,
           "equivalent_years_of_record": 100
       }
-    }
-}]
+  }]
   }
