@@ -16,10 +16,15 @@ func Init() (filestore.FileStore, error) {
 		S3Id:     os.Getenv("AWS_ACCESS_KEY_ID"),
 		S3Key:    os.Getenv("AWS_SECRET_ACCESS_KEY"),
 		S3Region: os.Getenv("AWS_DEFAULT_REGION"),
-		S3Bucket: os.Getenv("S3_BUCKET")}
+		S3Bucket: os.Getenv("S3_BUCKET"),
+	}
 	fmt.Println(s3Conf)
 	fs, err := filestore.NewFileStore(s3Conf)
-
+	/*s3fs, s3fsok := fs.(*filestore.S3FS)
+	if s3fsok{
+		s3fs.session.withmoreconfigstuff
+	}
+	*/
 	if err != nil {
 		log.Fatal(err)
 	}
