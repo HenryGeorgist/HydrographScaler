@@ -30,7 +30,7 @@ func Init() (filestore.FileStore, error) {
 // LoadPayload
 func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, error) {
 	var p Payload
-
+	fmt.Println("looking for " + payloadFile)
 	data, err := fs.GetObject(payloadFile)
 	if err != nil {
 		return p, err
