@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
+	"time"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
 )
@@ -21,12 +20,16 @@ func main() {
 	// 	fmt.Println("please specify an input file using `-config=myconfig.json`")
 	// 	return
 	// }
+	fmt.Printf("sleeping for 20 seconds, current unix time: %v\n", time.Now().Unix())
 
-	payload := "/data/test-sim/inputs/payload.yaml"
+	time.Sleep(20 * time.Second)
+
+	fmt.Printf("Current Unix Time: %v\n", time.Now().Unix())
+	payload := "/media/payload.yaml"
 
 	/* PLACEHOLDER for rapid iteration during development
 	Allows to push the desired payload, we are about to read:) */
-	localPayloadFile := "/workspaces/manifest/payload.yaml"
+	/*localPayloadFile := "/workspaces/manifest/payload.yaml"
 	jsonFile, err := os.Open(localPayloadFile)
 	if err != nil {
 		fmt.Println("jsonFile error:", err)
@@ -47,7 +50,7 @@ func main() {
 		return
 	}
 	fmt.Println(quickFixUploadReponse)
-
+	*/
 	/* Resume regular program */
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
