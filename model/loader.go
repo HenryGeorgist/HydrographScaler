@@ -48,6 +48,18 @@ func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, err
 	return p, nil
 }
 
+// LoadPayload
+func UpLoadToS3(newS3Path string, fileBytes []byte, fs filestore.FileStore) (filestore.FileOperationOutput, error) {
+	var repsonse *filestore.FileOperationOutput
+	var err error
+	repsonse, err = fs.PutObject(newS3Path, fileBytes)
+	if err != nil {
+		return *repsonse, err
+	}
+
+	return *repsonse, err
+}
+
 // func LoadModelPayloadFromLocalJson(watPayload string) (wat.ModelPayload, error) {
 // 	var wp wat.ModelPayload
 // 	jsonFile, err := os.Open(watPayload)

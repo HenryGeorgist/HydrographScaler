@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
 )
@@ -22,6 +24,31 @@ func main() {
 
 	payload := "/data/test-sim/inputs/payload.yaml"
 
+	/* PLACEHOLDER for rapid iteration during development
+	Allows to push the desired payload, we are about to read:) */
+	localPayloadFile := "/workspaces/manifest/payload.yaml"
+	jsonFile, err := os.Open(localPayloadFile)
+	if err != nil {
+		fmt.Println("jsonFile error:", err)
+		return
+	}
+
+	defer jsonFile.Close()
+
+	jsonData, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		fmt.Println("jsonData error:", err)
+		return
+	}
+
+	quickFixUploadReponse, err := model.UpLoadToS3(payload, jsonData, fs)
+	if err != nil {
+		fmt.Println("quickFixUploadReponse error:", err)
+		return
+	}
+	fmt.Println(quickFixUploadReponse)
+
+	/* Resume regular program */
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -35,8 +62,13 @@ func main() {
 	}
 
 	for _, m := range payloadInstructions.DischargeModels {
+		if len(m.Model.ModelFiles) == 0 {
+			fmt.Println("These aren't the droids you're looking for...")
+			return
+		}
+
 		hsm, err := model.NewHydrographScalerModelFromS3(m.Model.ModelFiles[0], fs)
-		fmt.Println(m.Model.ModelFiles[0])
+
 		if err != nil {
 			fmt.Println("error:", err)
 			return
