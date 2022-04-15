@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,7 +17,7 @@ func Init() (filestore.FileStore, error) {
 		S3Key:    os.Getenv("AWS_SECRET_ACCESS_KEY"),
 		S3Region: os.Getenv("AWS_DEFAULT_REGION"),
 		S3Bucket: os.Getenv("S3_BUCKET")}
-
+	fmt.Println(s3Conf)
 	fs, err := filestore.NewFileStore(s3Conf)
 
 	if err != nil {
