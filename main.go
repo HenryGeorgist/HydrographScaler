@@ -25,7 +25,7 @@ func main() {
 	time.Sleep(20 * time.Second)
 
 	fmt.Printf("Current Unix Time: %v\n", time.Now().Unix())
-	payload := "/manifest/payload.yaml"
+	payload := "/configs/payload.yaml"
 
 	/* PLACEHOLDER for rapid iteration during development
 	Allows to push the desired payload, we are about to read:) */

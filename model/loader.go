@@ -17,6 +17,10 @@ func Init() (filestore.FileStore, error) {
 		S3Key:    os.Getenv("AWS_SECRET_ACCESS_KEY"),
 		S3Region: os.Getenv("AWS_DEFAULT_REGION"),
 		S3Bucket: os.Getenv("S3_BUCKET"),
+		//S3EndPoint: os.Getenv("S3_ENDPOINT"),
+		//S3DisableSSL: os.Getenv("S3_DISABLE_SSL"),
+		//S3ForcePathStyle: os.Getenv("S3_FORCE_PATH_STYLE"),
+		//S3Mock: os.Getenv("S3_MOCK"),
 	}
 	fmt.Println(s3Conf)
 	fs, err := filestore.NewFileStore(s3Conf)

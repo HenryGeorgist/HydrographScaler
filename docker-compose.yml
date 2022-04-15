@@ -26,16 +26,12 @@ services:
       sleep 10;
       /usr/bin/mc config host add minio http://minio:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY;
       /usr/bin/mc mb   minio/configs;
-      /usr/bin/mc mb   minio/manifest;
       /usr/bin/mc policy set public minio/configs;
       /usr/bin/mc cp --recursive /configs/ minio/configs/ ;
-      /usr/bin/mc policy set public minio/manifest;
-      /usr/bin/mc cp --recursive /manifest/ minio/manifest/ ;
       exit 0;
       "
     volumes:
       - ./configs:/configs
-      - ./manifest:/manifest
   hydro-scalar:
     depends_on: 
       - minio_init
@@ -47,11 +43,10 @@ services:
       - AWS_DEFAULT_REGION=us-east-1
       - AWS_S3_REGION=us-east-1
       - AWS_S3_BUCKET=manifest
+      - S3_MOCK=True
       - S3_BUCKET=manifest
-      - AWS_S3_ENDPOINT=minio:9000
-      - AWS_VIRTUAL_HOSTING=False
-      - AWS_S3_DISABLE_SSL=True
-      - AWS_S3_FORCE_PATH_STYLE=True
-      - AWS_HTTPS=False
+      - S3_ENDPOINT=minio:9000
+      - S3_DISABLE_SSL=True
+      - S3_FORCE_PATH_STYLE=True
     volumes:
       - ./:/workspaces
