@@ -21,14 +21,17 @@ services:
       echo 'sleeping for 10 seconds while minio starts...';
       sleep 10;
       /usr/bin/mc config host add minio http://minio:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY;
-      /usr/bin/mc mb   minio/media;
-      /usr/bin/mc policy set public minio/media;
-      /usr/bin/mc cp --recursive /media/ minio/media/ ;
+      /usr/bin/mc mb   minio/configs;
+      /usr/bin/mc mb   minio/manifest;
+      /usr/bin/mc policy set public minio/configs;
+      /usr/bin/mc cp --recursive /configs/ minio/configs/ ;
+      /usr/bin/mc policy set public minio/manifest;
+      /usr/bin/mc cp --recursive /manifest/ minio/manifest/ ;
       exit 0;
       "
     volumes:
-      - ./configs:/media
-      - ./manifest:/media
+      - ./configs:/configs
+      - ./manifest:/manifest
   hydro-scalar:
     build: .
     restart: always
