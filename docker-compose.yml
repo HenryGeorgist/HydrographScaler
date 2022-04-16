@@ -29,7 +29,7 @@ services:
       exit 0;
       "
     volumes:
-      - ./configs:/configs
+      - ./configs:/configs/data
   hydro-scalar:
     depends_on: 
       - minio_init

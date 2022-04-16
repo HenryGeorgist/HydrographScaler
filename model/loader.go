@@ -65,7 +65,7 @@ func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, err
 	if err != nil {
 		return p, err
 	}
-
+	fmt.Println(string(body))
 	err = yaml.Unmarshal(body, &p)
 	if err != nil {
 		return p, err
