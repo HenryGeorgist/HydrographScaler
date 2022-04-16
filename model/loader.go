@@ -55,7 +55,7 @@ func Init() (filestore.FileStore, error) {
 // LoadPayload
 func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, error) {
 	var p Payload
-	fmt.Println("looking for " + payloadFile)
+	fmt.Println("reading payload:", payloadFile)
 	data, err := fs.GetObject(payloadFile)
 	if err != nil {
 		return p, err
@@ -65,7 +65,7 @@ func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, err
 	if err != nil {
 		return p, err
 	}
-	fmt.Println(string(body))
+
 	err = yaml.Unmarshal(body, &p)
 	if err != nil {
 		return p, err

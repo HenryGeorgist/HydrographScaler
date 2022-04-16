@@ -27,7 +27,7 @@ type HydrographScalerLocation struct {
 func NewHydrographScalerModelFromS3(filepath string, fs filestore.FileStore) (HydrographScalerModel, error) {
 	// var hss HydrographScalerStruct
 	hsm := HydrographScalerModel{}
-
+	fmt.Println("reading:", filepath)
 	data, err := fs.GetObject(filepath)
 	if err != nil {
 		return hsm, err
@@ -41,7 +41,7 @@ func NewHydrographScalerModelFromS3(filepath string, fs filestore.FileStore) (Hy
 	// fmt.Println("read:", string(body))
 	errjson := json.Unmarshal(body, &hsm)
 	if errjson != nil {
-		fmt.Println("Yep!")
+		fmt.Println("error:", errjson)
 		return hsm, errjson
 	}
 
@@ -64,21 +64,22 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	currentTime := timewindow.StartTime
 	//create a writer
 	output := strings.Builder{}
-	fmt.Println(outputdestination)
-	fmt.Println("Time,Flow")
+	fmt.Println("preparing to write output to:", outputdestination)
 	output.Write([]byte("Time,Flow"))
 	for _, flow := range hsm.Flows {
 		if timewindow.EndTime.After(currentTime) {
-
 			msg := fmt.Sprintf("%v,%v", currentTime, flow*value)
-			fmt.Println(msg)
 			output.Write([]byte(msg))
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {
 			fmt.Println("encountered more flows than the time window.")
 		}
 	}
-	_, _ = UpLoadToS3(outputdestination, []byte(output.String()), fs)
+	fso, err := UpLoadToS3(outputdestination, []byte(output.String()), fs)
+	if err != nil {
+		fmt.Println(fso)
+		return err
+	}
 	return nil
 }
 func (hsm HydrographScalerModel) Compute(event *Payload, fs filestore.FileStore) {

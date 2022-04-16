@@ -39,7 +39,7 @@ func main() {
 			return
 		} else {
 			fmt.Println("computing model")
-			fmt.Println(hsm)
+			//fmt.Println(hsm)
 			hsm.Compute(&payloadInstructions, fs)
 
 		}
