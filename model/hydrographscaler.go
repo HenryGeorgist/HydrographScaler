@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/HydrologicEngineeringCenter/go-statistics/statistics"
@@ -53,7 +54,7 @@ func (hsm HydrographScalerLocation) ModelName() string {
 	return hsm.Name
 }
 
-func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, timewindow TimeWindow, outputdestination string) error {
+func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, timewindow TimeWindow, outputdestination string, fs filestore.FileStore) error {
 	// bootstrap first (this is inefficient because it should only happen once per realization)
 	bootStrap := hsm.Distribution.Bootstrap(realizationSeed)
 	randomPeakValue := rand.New(rand.NewSource(eventSeed))
@@ -62,27 +63,30 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	//fmt.Println("bootStrap", bootStrap)
 	currentTime := timewindow.StartTime
 	//create a writer
+	output := strings.Builder{}
 	fmt.Println(outputdestination)
 	fmt.Println("Time,Flow")
+	output.Write([]byte("Time,Flow"))
 	for _, flow := range hsm.Flows {
 		if timewindow.EndTime.After(currentTime) {
 
 			msg := fmt.Sprintf("%v,%v", currentTime, flow*value)
 			fmt.Println(msg)
-
+			output.Write([]byte(msg))
 			currentTime = currentTime.Add(hsm.TimeStep)
 		} else {
 			fmt.Println("encountered more flows than the time window.")
 		}
 	}
+	_, _ = UpLoadToS3(outputdestination, []byte(output.String()), fs)
 	return nil
 }
-func (hsm HydrographScalerModel) Compute(event *Payload) {
+func (hsm HydrographScalerModel) Compute(event *Payload, fs filestore.FileStore) {
 	//create random generator for realization and event
 	erng := rand.NewSource(event.Config.Event.Seed)
 	rrng := rand.NewSource(event.Config.Realization.Seed)
 	for idx, location := range hsm.Locations {
-		err := location.Compute(erng.Int63(), rrng.Int63(), event.Config.TimeWindow, event.DischargeModels[0].Model.Outputs[idx]) //this is alittle goofy
+		err := location.Compute(erng.Int63(), rrng.Int63(), event.Config.TimeWindow, event.DischargeModels[0].Model.Outputs[idx], fs) //this is alittle goofy
 		if err != nil {
 			fmt.Println("error:", err)
 			return

@@ -40,7 +40,7 @@ func main() {
 		} else {
 			fmt.Println("computing model")
 			fmt.Println(hsm)
-			hsm.Compute(&payloadInstructions)
+			hsm.Compute(&payloadInstructions, fs)
 
 		}
 	}
