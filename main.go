@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
 )
@@ -11,50 +9,17 @@ import (
 func main() {
 
 	fs, err := model.Init()
-
-	// var configPath string
-	// flag.StringVar(&configPath, "config", "", "please specify an input file using `-config=myconfig.json`")
-	// flag.Parse()
-
-	// if configPath == "" {
-	// 	fmt.Println("given a blank path...")
-	// 	fmt.Println("please specify an input file using `-config=myconfig.json`")
-	// 	return
-	// }
-
-	payload := "/data/test-sim/inputs/payload.yaml"
-
-	/* PLACEHOLDER for rapid iteration during development
-	Allows to push the desired payload, we are about to read:) */
-	localPayloadFile := "/workspaces/manifest/payload.yaml"
-	jsonFile, err := os.Open(localPayloadFile)
 	if err != nil {
-		fmt.Println("jsonFile error:", err)
-		return
+		fmt.Println(err)
+		panic(err)
 	}
 
-	defer jsonFile.Close()
-
-	jsonData, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		fmt.Println("jsonData error:", err)
-		return
-	}
-
-	quickFixUploadReponse, err := model.UpLoadToS3(payload, jsonData, fs)
-	if err != nil {
-		fmt.Println("quickFixUploadReponse error:", err)
-		return
-	}
-	fmt.Println(quickFixUploadReponse)
-
-	/* Resume regular program */
+	payload := "/data/modelPayload.yml"
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("not successful", err)
 		return
 	}
-
 	// verify this is the right plugin
 	if payloadInstructions.Plugin != "hydrograph_scaler" {
 		fmt.Println("error", "expecting", "hydrograph_scaler", "got", payloadInstructions.Plugin)
@@ -75,10 +40,9 @@ func main() {
 		} else {
 			fmt.Println("computing model")
 			fmt.Println(hsm)
-			hsm.Compute(&payloadInstructions)
+			hsm.Compute(&payloadInstructions, fs)
 
 		}
 	}
-
 	fmt.Println("Made it to the end.....")
 }
