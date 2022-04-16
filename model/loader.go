@@ -5,30 +5,46 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/USACE/filestore"
 	"gopkg.in/yaml.v2"
 )
 
 func Init() (filestore.FileStore, error) {
-
+	mock := os.Getenv("S3_MOCK")
+	disablessl := false
+	s3fps := false
+	mbool, err := strconv.ParseBool(mock)
 	s3Conf := filestore.S3FSConfig{
 		S3Id:     os.Getenv("AWS_ACCESS_KEY_ID"),
 		S3Key:    os.Getenv("AWS_SECRET_ACCESS_KEY"),
 		S3Region: os.Getenv("AWS_DEFAULT_REGION"),
 		S3Bucket: os.Getenv("S3_BUCKET"),
-		//S3EndPoint: os.Getenv("S3_ENDPOINT"),
-		//S3DisableSSL: os.Getenv("S3_DISABLE_SSL"),
-		//S3ForcePathStyle: os.Getenv("S3_FORCE_PATH_STYLE"),
-		//S3Mock: os.Getenv("S3_MOCK"),
+	}
+	if err != nil {
+		return nil, err
+	}
+	if mbool {
+		dsslstring := os.Getenv("S3_DISABLE_SSL")
+		disablessl, err = strconv.ParseBool(dsslstring)
+		if err != nil {
+			return nil, err
+		}
+		s3fpsstring := os.Getenv("S3_FORCE_PATH_STYLE")
+		s3fps, err = strconv.ParseBool(s3fpsstring)
+		if err != nil {
+			return nil, err
+		}
+		s3Conf.Mock = mbool
+		s3Conf.S3DisableSSL = disablessl
+		s3Conf.S3ForcePathStyle = s3fps
+		s3Conf.S3Endpoint = os.Getenv("S3_ENDPOINT")
 	}
 	fmt.Println(s3Conf)
+
 	fs, err := filestore.NewFileStore(s3Conf)
-	/*s3fs, s3fsok := fs.(*filestore.S3FS)
-	if s3fsok{
-		s3fs.session.withmoreconfigstuff
-	}
-	*/
+
 	if err != nil {
 		log.Fatal(err)
 	}
