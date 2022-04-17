@@ -85,10 +85,10 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 }
 func (hsm HydrographScalerModel) Compute(event *wat.ModelPayload, fs filestore.FileStore) {
 	//create random generator for realization and event
-	erng := rand.NewSource(event.EventSeed)
-	rrng := rand.NewSource(event.RealizationSeed)
+	erng := rand.NewSource(event.Event.Seed)
+	rrng := rand.NewSource(event.Realization.Seed)
 	for idx, location := range hsm.Locations {
-		path := fmt.Sprintf("%v/%v/%v/%v", event.OutputDestination, event.RealizationNumber, event.EventNumber, event.NecessaryOutputs[idx].Name)
+		path := fmt.Sprintf("%v/realization %v/event %v/%v", event.OutputDestination, event.Realization.Index, event.Event.Index, event.NecessaryOutputs[idx].Name)
 		err := location.Compute(erng.Int63(), rrng.Int63(), event.EventTimeWindow, path, fs)
 		if err != nil {
 			fmt.Println("error:", err)

@@ -25,15 +25,8 @@ func main() {
 		fmt.Println("error", "expecting", "hydrograph_scaler", "got", payloadInstructions.TargetPlugin)
 		return
 	}
-	/*
-		for _, m := range payloadInstructions.DischargeModels {
-			if len(m.Model.ModelFiles) == 0 {
-				fmt.Println("These aren't the droids you're looking for...")
-				return
-			}
-	*/
-	//fmt.Println(payloadInstructions)
-	hsm, err := model.NewHydrographScalerModelFromS3(payloadInstructions.ModelConfigurationPath, fs)
+	//load the model data into memory.
+	hsm, err := model.NewHydrographScalerModelFromS3(payloadInstructions.ModelConfigurationPaths[0], fs)
 
 	if err != nil {
 		fmt.Println("error:", err)

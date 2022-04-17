@@ -75,7 +75,7 @@ func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (wat.ModelPay
 	return p, nil
 }
 
-// LoadPayload
+// UpLoadToS3
 func UpLoadToS3(newS3Path string, fileBytes []byte, fs filestore.FileStore) (filestore.FileOperationOutput, error) {
 	var repsonse *filestore.FileOperationOutput
 	var err error
@@ -86,25 +86,3 @@ func UpLoadToS3(newS3Path string, fileBytes []byte, fs filestore.FileStore) (fil
 
 	return *repsonse, err
 }
-
-// func LoadModelPayloadFromLocalJson(watPayload string) (wat.ModelPayload, error) {
-// 	var wp wat.ModelPayload
-// 	jsonFile, err := os.Open(watPayload)
-// 	if err != nil {
-// 		return wp, err
-// 	}
-
-// 	defer jsonFile.Close()
-
-// 	jsonData, err := ioutil.ReadAll(jsonFile)
-// 	if err != nil {
-// 		return wp, err
-// 	}
-
-// 	errjson := json.Unmarshal(jsonData, &wp)
-// 	if errjson != nil {
-// 		return wp, errjson
-// 	}
-// 	return wp, nil
-
-// }

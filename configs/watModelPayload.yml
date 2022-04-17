@@ -1,7 +1,8 @@
 target_plugin: hydrograph_scaler
 model_configuration:
   model_name: hsm
-  model_configuration_path: /data/hydrographscaler/hsm.json
+  model_configuration_paths:
+  - /data/hydrographscaler/hsm.json
 model_links:
   linked_inputs:
   required_outputs:
@@ -16,10 +17,12 @@ model_links:
     format: csv
 event_config:
   output_destination: /data/hydrographscaler/output/
-  realization_number: 1
-  event_number: 1
+  realization:
+    index: 1
+    seed: 1234
+  event:
+    index: 1
+    seed: 5678
   time_window:
     starttime: 2018-01-01T01:01:01.000000001-05:00
     endtime: 2020-12-31T01:01:01.000000001-05:00
-  event_seed: 5678
-  realization_seed: 1234
