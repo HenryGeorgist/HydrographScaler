@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/USACE/filestore"
+	"github.com/usace/wat-api/wat"
 	"gopkg.in/yaml.v2"
 )
 
@@ -53,8 +54,8 @@ func Init() (filestore.FileStore, error) {
 }
 
 // LoadPayload
-func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, error) {
-	var p Payload
+func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (wat.ModelPayload, error) {
+	var p wat.ModelPayload
 	fmt.Println("reading payload:", payloadFile)
 	data, err := fs.GetObject(payloadFile)
 	if err != nil {
@@ -65,12 +66,12 @@ func LoadPayloadFromS3(payloadFile string, fs filestore.FileStore) (Payload, err
 	if err != nil {
 		return p, err
 	}
-
+	//fmt.Println(string(body))
 	err = yaml.Unmarshal(body, &p)
 	if err != nil {
 		return p, err
 	}
-
+	//fmt.Println(p)
 	return p, nil
 }
 
