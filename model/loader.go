@@ -8,11 +8,13 @@ import (
 	"strconv"
 
 	"github.com/USACE/filestore"
+	"github.com/go-redis/redis"
 	"github.com/usace/wat-api/wat"
 	"gopkg.in/yaml.v2"
 )
 
-func Init() (filestore.FileStore, error) {
+func InitStore() (filestore.FileStore, error) {
+	//initalize S3 Store
 	mock := os.Getenv("S3_MOCK")
 	disablessl := false
 	s3fps := false
@@ -51,6 +53,15 @@ func Init() (filestore.FileStore, error) {
 	}
 
 	return fs, nil
+}
+func InitReddis() (*redis.Client, error) {
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
+	})
+	return client, nil
 }
 
 // LoadPayload

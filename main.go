@@ -8,12 +8,25 @@ import (
 
 func main() {
 
-	fs, err := model.Init()
+	fs, err := model.InitStore()
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
+	rc, err := model.InitReddis()
+	// we can call set with a `Key` and a `Value`.
+	err = rc.Set("pluginName", "hydrograph_scaler", 0).Err()
+	// if there has been an error setting the value
+	// handle the error
+	if err != nil {
+		fmt.Println(err)
+	}
+	val, err := rc.Get("pluginName").Result()
+	if err != nil {
+		fmt.Println(err)
+	}
 
+	fmt.Println(val)
 	payload := "/data/hydrographscaler/watModelPayload.yml"
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {

@@ -12,6 +12,7 @@ require (
 require (
 	github.com/apache/airflow-client-go/airflow v0.0.0-20220302101209-92f8091a0f81 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
