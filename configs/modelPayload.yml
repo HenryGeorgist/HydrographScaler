@@ -15,9 +15,9 @@ models:
   - model:
       name: hsm
       modelfiles:
-        - /data/hsm.json
+        - /data/hydrographscaler/hsm.json
       inputs: 
       outputs:
-        - /data/outputs/hsm1.csv
-        - /data/outputs/hsm2.csv
-        - /data/outputs/hsm3.csv
+        - /data/hydrographscaler/outputs/hsm1.csv
+        - /data/hydrographscaler/outputs/hsm2.csv
+        - /data/hydrographscaler/outputs/hsm3.csv

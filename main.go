@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	payload := "/data/modelPayload.yml"
+	payload := "/data/hydrographscaler/modelPayload.yml"
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
 	if err != nil {
 		fmt.Println("not successful", err)
