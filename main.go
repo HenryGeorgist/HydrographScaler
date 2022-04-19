@@ -7,13 +7,19 @@ import (
 )
 
 func main() {
-
+	fmt.Println("hydrograph_scaler plugin intializing")
+	fmt.Println("initializing filestore")
 	fs, err := model.InitStore()
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
-	rc, err := model.InitReddis()
+	fmt.Println("initializing Redis")
+	rc, err := model.InitRedis()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// we can call set with a `Key` and a `Value`.
 	err = rc.Set("pluginName", "hydrograph_scaler", 0).Err()
 	// if there has been an error setting the value
@@ -25,7 +31,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Println(val)
 	payload := "/data/hydrographscaler/watModelPayload.yml"
 	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)

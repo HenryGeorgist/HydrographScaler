@@ -54,7 +54,7 @@ func InitStore() (filestore.FileStore, error) {
 
 	return fs, nil
 }
-func InitReddis() (*redis.Client, error) {
+func InitRedis() (*redis.Client, error) {
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
