@@ -1,39 +1,37 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
+	"github.com/usace/wat-api/utils"
 )
 
 func main() {
 	fmt.Println("hydrograph_scaler plugin intializing")
-	fmt.Println("initializing filestore")
-	fs, err := model.InitStore()
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	fmt.Println("initializing Redis")
-	rc, err := model.InitRedis()
-	if err != nil {
-		fmt.Println(err)
+	var payload string
+	flag.StringVar(&payload, "payload", "", "please specify an input file using `-payload=pathtopayload.yml`")
+	flag.Parse()
+
+	if payload == "" {
+		fmt.Println("given a blank path...")
+		fmt.Println("please specify an input file using `-payload=pathtopayload.yml`")
 		return
 	}
-	// we can call set with a `Key` and a `Value`.
-	err = rc.Set("pluginName", "hydrograph_scaler", 0).Err()
-	// if there has been an error setting the value
-	// handle the error
+	fmt.Println("initializing filestore")
+	loader, err := utils.InitLoader("")
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
+		return
 	}
-	val, err := rc.Get("pluginName").Result()
+	fs, err := loader.InitStore()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
+		return
 	}
-	fmt.Println(val)
-	payload := "/data/hydrographscaler/watModelPayload.yml"
-	payloadInstructions, err := model.LoadPayloadFromS3(payload, fs)
+	payloadInstructions, err := utils.LoadModelPayloadFromS3(payload, fs)
 	if err != nil {
 		fmt.Println("not successful", err)
 		return
@@ -44,7 +42,8 @@ func main() {
 		return
 	}
 	//load the model data into memory.
-	hsm, err := model.NewHydrographScalerModelFromS3(payloadInstructions.ModelConfigurationPaths[0], fs)
+	hsm := model.HydrographScalerModel{}
+	err = utils.LoadJsonPluginModelFromS3(payloadInstructions.ModelConfigurationPaths[0], fs, &hsm)
 
 	if err != nil {
 		fmt.Println("error:", err)
