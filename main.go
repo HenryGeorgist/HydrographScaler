@@ -43,7 +43,8 @@ func main() {
 	}
 	//load the model data into memory.
 	hsm := model.HydrographScalerModel{}
-	err = utils.LoadJsonPluginModelFromS3(payloadInstructions.ModelConfigurationPaths[0], fs, &hsm)
+	path := payloadInstructions.ModelConfigurationResources[0].Authority + payloadInstructions.ModelConfigurationResources[0].Fragment
+	err = utils.LoadJsonPluginModelFromS3(path, fs, &hsm)
 
 	if err != nil {
 		fmt.Println("error:", err)
