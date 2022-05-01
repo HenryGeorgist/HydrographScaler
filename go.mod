@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/HydrologicEngineeringCenter/go-statistics v0.0.0-20220313174032-216862a003d3
 	github.com/USACE/filestore v0.1.5-0.20220416172749-6484811f7b13
-	github.com/usace/wat-api v0.0.0-20220430163913-3c963088c10c
+	github.com/usace/wat-api v0.0.0-20220501102854-56196b93edd0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

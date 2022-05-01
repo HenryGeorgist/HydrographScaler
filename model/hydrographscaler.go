@@ -62,7 +62,7 @@ func (hsm HydrographScalerModel) Compute(event *wat.ModelPayload, fs filestore.F
 	erng := rand.NewSource(event.Event.Seed)
 	rrng := rand.NewSource(event.Realization.Seed)
 	for idx, location := range hsm.Locations {
-		path := fmt.Sprintf("%v/%v", event.OutputDestination, event.NecessaryOutputs[idx].Name)
+		path := fmt.Sprintf("%v/%v", event.OutputDestination.Authority, event.NecessaryOutputs[idx].Name)
 		err := location.Compute(erng.Int63(), rrng.Int63(), event.EventTimeWindow, path, fs)
 		if err != nil {
 			fmt.Println("error:", err)
