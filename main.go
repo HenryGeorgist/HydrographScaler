@@ -31,6 +31,11 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+	cache, err := loader.InitRedis()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	payloadInstructions, err := utils.LoadModelPayloadFromS3(payload, fs)
 	if err != nil {
 		fmt.Println("not successful", err)
@@ -56,5 +61,8 @@ func main() {
 
 	}
 	//}
+	key := payloadInstructions.PluginImageAndTag + "_" + payloadInstructions.Name + "_R" + fmt.Sprint(payloadInstructions.Realization.Index) + "_E" + fmt.Sprint(payloadInstructions.Event.Index)
+	out := cache.Set(key, "complete", 0)
+	fmt.Println(out)
 	fmt.Println("Made it to the end.....")
 }
