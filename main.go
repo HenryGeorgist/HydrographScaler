@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/henrygeorgist/hydrographscalar/model"
+	wm "github.com/usace/wat-api/model"
 	"github.com/usace/wat-api/utils"
 )
 
@@ -31,25 +32,30 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	cache, err := loader.InitRedis()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+
 	payloadInstructions, err := utils.LoadModelPayloadFromS3(payload, fs)
 	if err != nil {
 		fmt.Println("not successful", err)
 		return
 	}
-	// verify this is the right plugin
-	if payloadInstructions.TargetPlugin != "hydrograph_scaler" {
-		fmt.Println("error", "expecting", "hydrograph_scaler", "got", payloadInstructions.TargetPlugin)
-		return
+	modelpath := ""
+	eventConfigPath := ""
+	for _, ldd := range payloadInstructions.LinkedInputs {
+		switch ldd.Name {
+		case "Event Configuration":
+			//event configuration
+			eventConfigPath = ldd.Fragment
+		default:
+			//model file
+			modelpath = ldd.Fragment
+		}
 	}
+	//load event configuration into memory
+	ec := wm.EventConfiguration{}
+	err = utils.LoadJsonPluginModelFromS3(eventConfigPath, fs, &ec)
 	//load the model data into memory.
 	hsm := model.HydrographScalerModel{}
-	path := payloadInstructions.ModelConfigurationResources[0].Authority + payloadInstructions.ModelConfigurationResources[0].Fragment
-	err = utils.LoadJsonPluginModelFromS3(path, fs, &hsm)
+	err = utils.LoadJsonPluginModelFromS3(modelpath, fs, &hsm)
 
 	if err != nil {
 		fmt.Println("error:", err)
@@ -57,12 +63,8 @@ func main() {
 	} else {
 		fmt.Println("computing model")
 		//fmt.Println(hsm)
-		hsm.Compute(&payloadInstructions, fs)
+		hsm.Compute(&ec, fs)
 
 	}
-	//}
-	key := payloadInstructions.PluginImageAndTag + "_" + payloadInstructions.Name + "_R" + fmt.Sprint(payloadInstructions.Realization.Index) + "_E" + fmt.Sprint(payloadInstructions.Event.Index)
-	out := cache.Set(key, "complete", 0)
-	fmt.Println(out)
 	fmt.Println("Made it to the end.....")
 }

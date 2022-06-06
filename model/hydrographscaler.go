@@ -8,7 +8,7 @@ import (
 
 	"github.com/HydrologicEngineeringCenter/go-statistics/statistics"
 	"github.com/USACE/filestore"
-	"github.com/usace/wat-api/wat"
+	wm "github.com/usace/wat-api/model"
 )
 
 type HydrographScalerModel struct {
@@ -28,7 +28,7 @@ func (hsm HydrographScalerLocation) ModelName() string {
 	return hsm.Name
 }
 
-func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, timewindow wat.TimeWindow, outputdestination string, fs filestore.FileStore) error {
+func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int64, timewindow wm.TimeWindow, outputdestination string, fs filestore.FileStore) error {
 	// bootstrap first (this is inefficient because it should only happen once per realization)
 	bootStrap := hsm.Distribution.Bootstrap(realizationSeed)
 	randomPeakValue := rand.New(rand.NewSource(eventSeed))
@@ -57,12 +57,12 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	}
 	return nil
 }
-func (hsm HydrographScalerModel) Compute(event *wat.ModelPayload, fs filestore.FileStore) {
+func (hsm HydrographScalerModel) Compute(event *wm.EventConfiguration, fs filestore.FileStore) {
 	//create random generator for realization and event
 	erng := rand.NewSource(event.Event.Seed)
 	rrng := rand.NewSource(event.Realization.Seed)
-	for idx, location := range hsm.Locations {
-		path := fmt.Sprintf("%v/%v", event.OutputDestination.Authority, event.NecessaryOutputs[idx].Name)
+	for _, location := range hsm.Locations {
+		path := fmt.Sprintf("%v/%v", event.OutputDestination.Authority, location.Name)
 		err := location.Compute(erng.Int63(), rrng.Int63(), event.EventTimeWindow, path, fs)
 		if err != nil {
 			fmt.Println("error:", err)
