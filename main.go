@@ -63,7 +63,8 @@ func main() {
 	} else {
 		fmt.Println("computing model")
 		//fmt.Println(hsm)
-		hsm.Compute(&ec, fs)
+
+		hsm.Compute(&ec, fs, payloadInstructions.NecessaryOutputs[0].Fragment)
 
 	}
 	fmt.Println("Made it to the end.....")
