@@ -40,7 +40,7 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	//create a writer
 	output := strings.Builder{}
 	fmt.Println("preparing to write output to:", outputdestination)
-	output.Write([]byte("Time,Flow\n"))
+	//output.Write([]byte("Time,Flow\n"))
 	for idx, flow := range hsm.Flows {
 		if timewindow.EndTime.After(currentTime) {
 			msg := fmt.Sprintf("%v,%v\n", float64(idx)*timestepPercent, flow*value)
