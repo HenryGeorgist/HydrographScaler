@@ -36,7 +36,7 @@ func (hsm HydrographScalerLocation) Compute(eventSeed int64, realizationSeed int
 	//fmt.Println("value", value)
 	//fmt.Println("bootStrap", bootStrap)
 	currentTime := timewindow.StartTime
-	timestepPercent := float64(1) / float64(len(hsm.Flows))
+	timestepPercent := float64(1) / float64(len(hsm.Flows)-1)
 	//create a writer
 	output := strings.Builder{}
 	fmt.Println("preparing to write output to:", outputdestination)
